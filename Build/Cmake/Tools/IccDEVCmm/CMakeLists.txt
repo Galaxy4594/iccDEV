@@ -94,7 +94,7 @@ set_target_properties(${TARGET_NAME} PROPERTIES
 # Keep non-path link flags
 if (MSVC)
     target_link_options(${TARGET_NAME} PRIVATE "/DYNAMICBASE:NO" "/NODEFAULTLIB:LIBCMT")
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # Clang/LLD uses different syntax for these
     target_link_options(${TARGET_NAME} PRIVATE "-Wl,--no-dynamicbase")
     # Clang in MSYS2 usually handles its own runtime; /NODEFAULTLIB is rarely needed.
