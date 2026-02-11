@@ -36,8 +36,8 @@ add_executable(iccApplySearch ${SOURCES})
 
 # Link libraries
 target_link_libraries(iccApplySearch PRIVATE
-  IccProfLib2
-  IccXML2
+  ${TARGET_LIB_ICCPROFLIB}
+  ${TARGET_LIB_ICCXML}
   nlohmann_json::nlohmann_json
 )
 

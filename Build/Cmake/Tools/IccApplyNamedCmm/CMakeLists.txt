@@ -50,7 +50,7 @@ if(NOT TARGET iccApplyNamedCmm)
 
   target_link_libraries(iccApplyNamedCmm PRIVATE
     ${TARGET_LIB_ICCPROFLIB}
-    IccXML2
+    ${TARGET_LIB_ICCXML}
     nlohmann_json::nlohmann_json
   )
 

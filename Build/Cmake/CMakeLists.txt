@@ -926,10 +926,18 @@ elseif(UNIX AND NOT APPLE)
 
 elseif(WIN32)
   message(STATUS "Detected platform: Windows")
-
-  # Windows + MSVC flags
+  
+  if(MSVC)
+  # Actual MSVC compiler flags
   add_compile_options(/std:c++17 /D_WINDOWS /EHsc)
-  message(STATUS "Windows build: Compiler flags set for MSVC with C++17 and exceptions enabled.")
+  message(STATUS "Windows build: Compiler flags set for MSVC.")
+  elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+  # Clang (MSYS2) or GCC flags
+  add_compile_options(-std=c++17 -D_WINDOWS -fexceptions)
+  message(STATUS "Windows build: Compiler flags set for ${CMAKE_CXX_COMPILER_ID} (Unix-style).")
+else()
+  message(FATAL_ERROR "Unsupported or unknown compiler: ${CMAKE_CXX_COMPILER_ID}. Aborting.")
+endif()
 
 else()
   message(FATAL_ERROR "Unsupported or unknown platform. Aborting build configuration.")
@@ -1003,7 +1011,11 @@ add_subdirectory(IccProfLib)
 
 # Set default link target for IccProfLib
 # Use CACHE INTERNAL so that it's available in Tools/* subdirectories
-set(TARGET_LIB_ICCPROFLIB IccProfLib2 CACHE INTERNAL "Link target for IccProfLib2")
+if(ENABLE_SHARED_LIBS)
+    set(TARGET_LIB_ICCPROFLIB IccProfLib2 PARENT_SCOPE)
+else()
+    set(TARGET_LIB_ICCPROFLIB "IccProfLib2-static" CACHE INTERNAL "Resolved IccProfLib target")
+endif()
 
 #
 # Optional external dependency: LibXML2
@@ -1046,11 +1058,13 @@ message(STATUS "Adding subdirectory for IccXML.")
 add_subdirectory(IccXML)
 
 # Set default link target for IccXML (matches build configuration)
-IF(ENABLE_SHARED_LIBS)
-  set(TARGET_LIB_ICCXML IccXML2 CACHE INTERNAL "Link target for IccXML2")
-ELSE()
-  set(TARGET_LIB_ICCXML IccXML2-static CACHE INTERNAL "Link target for IccXML2")
-ENDIF()
+if(ENABLE_SHARED_LIBS)
+    set(TARGET_LIB_ICCPROFLIB "IccProfLib2" CACHE INTERNAL "Resolved IccProfLib target")
+    set(TARGET_LIB_ICCXML "IccXML2" CACHE INTERNAL "Resolved IccXML target")
+else()
+    set(TARGET_LIB_ICCPROFLIB "IccProfLib2-static" CACHE INTERNAL "Resolved IccProfLib target")
+    set(TARGET_LIB_ICCXML "IccXML2-static" CACHE INTERNAL "Resolved IccXML target")
+endif()
 
 # Ensure IccXML headers are available globally
 include_directories(${TOP_SOURCE_DIR}/IccXML/IccLibXML/)
